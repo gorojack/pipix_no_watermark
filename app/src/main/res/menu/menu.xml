@@ -1,7 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_douyin"
+        android:title="抖音"/>
+
+    <item
         android:id="@+id/menu_about"
         android:title="关于"/>
-    
+
+    <item
+        android:id="@+id/menu_juanzeng"
+        android:title="捐赠"/>
+
 </menu>

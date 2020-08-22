@@ -14,8 +14,7 @@ import android.text.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity
-{
+public class MainActivity extends AppCompatActivity{
 	
 	AlertDialog.Builder builder;
 	EditText mEditText;
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity
             switch (msg.what) {
                 case SUCCEED:
                     String source = (String) msg.obj;
-//                  source=source.replace("\\","");
 
                     mTextView=(TextView)findViewById(R.id.textview);
 
@@ -53,16 +51,12 @@ public class MainActivity extends AppCompatActivity
 						cell_id = cell_id.substring(cell_id.indexOf("cell_id=")+8);
 
 						getVideoJson("https://h5.pipix.com/bds/webapi/cell/detail/?cell_id="+cell_id+"&cell_type="+"8"+"&source=share",ISCELL);
-						//mTextView.setText("cell_id="+cell_id+"\ncell_type="+"8");
-						//Toast.makeText(context,"正在获取评论内容",Toast.LENGTH_SHORT).show();
 					}else {
 						String item_id;
 						item_id = source.substring(0,source.indexOf("?"));
 						item_id = item_id.substring(item_id.indexOf("item\\/")+6);
 
 						getVideoJson("https://h5.pipix.com/bds/webapi/item/detail/?item_id="+item_id+"&source=share",ISITEM);
-						//mTextView.setText("item_id="+item_id);
-						//Toast.makeText(context,"正在获取视频内容",Toast.LENGTH_SHORT).show();
 					}
 
                     break;
@@ -81,13 +75,10 @@ public class MainActivity extends AppCompatActivity
             switch (msg.what) {
                 case URL_SUCCEED:
                     String fullJson = (String) msg.obj;
-                    //int ISCELL = msg.arg1;
                     boolean ISCELL = msg.arg1==102;
                     final String url;
 
-					//webView=(WebView)findViewById(R.id.webview);
 					downloadButton=(Button)findViewById(R.id.download_button);
-					//mTextView=(TextView)findViewById(R.id.textview);
 
 					webView.getSettings().setJavaScriptEnabled(true);
 					webView.getSettings().setPluginState(WebSettings.PluginState.ON);
@@ -97,34 +88,28 @@ public class MainActivity extends AppCompatActivity
 					if(ISCELL){
 						url=ParseData.getCellData(MainActivity.this,fullJson);
 						webView.loadUrl(url);
-						//mTextView.setText(url);
 						downloadButton.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View view) {
-								DownloadMG.downloadVideo(context,url);
+								String id;
+								id = url.substring(url.indexOf(".com/")+6);
+								id = id.substring(0,id.indexOf("/"));
+								DownloadMG.downloadVideo(context,url,id);
 							}
 						});
 					}else {
 						url=ParseData.getItemData(MainActivity.this,fullJson);
 						webView.loadUrl(url);
-						//mTextView.setText(url);
 						downloadButton.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View view) {
-								DownloadMG.downloadVideo(context,url);
+								String id;
+								id = url.substring(url.indexOf(".com/")+6);
+								id = id.substring(0,id.indexOf("/"));
+								DownloadMG.downloadVideo(context,url,id);
 							}
 						});
 					}
-
-//					url=ParseData.getPictureCommentPictureUrl(MainActivity.this,fullJson);
-//					webView.loadUrl(url);
-//					mTextView.setText(url);downloadButton.setOnClickListener(new View.OnClickListener() {
-//					@Override
-//					public void onClick(View view) {
-//						DownloadMG.downloadVideo(context,url);
-//						Toast.makeText(MainActivity.this,"开始下载",Toast.LENGTH_SHORT).show();
-//						}
-//					});
 
                     break;
                 case URL_FALL:
@@ -136,16 +121,11 @@ public class MainActivity extends AppCompatActivity
 	
 	
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 		webView=(WebView)findViewById(R.id.webview);
 		webView.loadUrl("file:////android_asset/web/index.html");
-
-		//webView.loadUrl("https://p9-ppx.byteimg.com/img/tos-cn-i-0000/14c4ed093cfb498ca316a96d192beb73~c5_500x500_q60.jpeg");
-		//webView.loadData("<html><head><style type='text/css'>body{margin:auto auto;text-align:center;} img{height:100%25;} </style></head><body><img src='https://p9-ppx.byteimg.com/img/tos-cn-i-0000/14c4ed093cfb498ca316a96d192beb73~c5_500x500_q60.jpeg'/></body></html>" ,"text/html",  "UTF-8");
-
 		mEditText=(EditText)findViewById(R.id.edittext);
 		mButton=(Button)findViewById(R.id.getbutton);
 		clearButton=(Button)findViewById(R.id.clearbutton);
@@ -230,6 +210,17 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_about:
 				showAbout();
                 break;
+			case R.id.menu_douyin:
+				//
+				Intent intent = new Intent(MainActivity.this,ParseDouyinActivity.class);
+				startActivity(intent);
+				//
+				break;
+			case R.id.menu_juanzeng:
+				//
+				showJZDialog();
+				//
+				break;
         }
 
         return true;
@@ -239,12 +230,28 @@ public class MainActivity extends AppCompatActivity
 
         builder = new AlertDialog.Builder(this).setIcon(R.mipmap.ic_launcher_round).setTitle("关于软件")
 			.setMessage("作者皮皮虾：芒K熏12138\n"+
+			"作者抖音：gorojack（很少很少刷抖音）\n"+
 			"作者微信：sun18184076425\n"+
 			"作者QQ：1937047112\n"+
 			"此软件永久免费使用\n"+
 			"请勿用于商业用途\n"+
 			"喜欢的话可以捐赠作者\n"+
+			"代码实在是太乱了（捂脸）\n"+
 			"更多功能正在开发中...");
         builder.create().show();
     }
+
+	public void showJZDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		final AlertDialog dialog = builder.create();
+		View view = View.inflate(MainActivity.this,R.layout.dialog_jz,null);
+		dialog.setView(view);
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
+		final WebImageView mWebImageWX = view.findViewById(R.id.skm_wx);
+		final WebImageView mWebImageZFB = view.findViewById(R.id.skm_zfb);
+		mWebImageWX.setImageURL("http://47.93.39.209/skm_wx.jpg");
+		mWebImageZFB.setImageURL("http://47.93.39.209/skm_zfb.jpg");
+	}
+
 }

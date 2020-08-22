@@ -1,6 +1,17 @@
 package top.gorojack.ppxdownload;
 import android.app.*;
 import android.os.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.*;
 import android.content.*;
 import android.net.*;
@@ -9,37 +20,35 @@ import android.widget.*;
 public class DownloadMG
 {
 	
-	public static void downloadVideo(Context context , String url){
-		
-		Calendar calendar = Calendar.getInstance();
-		String time;
+	public static void downloadVideo(Context context , String url , String fileName){
+
 		DownloadManager downloadManager;
 		long id;
-		
-		time = "";
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH)+1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
-        time = ""+year+month+day+hour+minute+second;
+
+        boolean isvideo=url.contains("video");
+        boolean isDouyin=url.contains("ppx");
 
         DownloadManager.Request request=new DownloadManager.Request(Uri.parse(url));
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir();
-        request.setTitle("皮皮虾"+time);
+        if (isDouyin){
+            request.setTitle("皮皮虾"+fileName);
+        }else {
+            request.setTitle("抖音"+fileName);
+        }
         request.setAllowedOverRoaming(true);
 
-        boolean isvideo=url.contains("video");
-
         if(isvideo){
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS ,"ppx"+time+".mp4" ) ;
+            if (isDouyin) {
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "ppx" + fileName + ".mp4");
+            }else {
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "douyin" + fileName + ".mp4");
+            }
         }else {
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS ,"ppx"+time+".jpeg" ) ;
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS ,"ppx"+fileName+".jpeg" ) ;
         }
         downloadManager= (DownloadManager) context.getSystemService(context.DOWNLOAD_SERVICE);
         id = downloadManager.enqueue(request);
 		Toast.makeText(context,"文件正在被下载到/Download/",Toast.LENGTH_SHORT).show();
 	}
-	
+
 }
